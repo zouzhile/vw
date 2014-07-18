@@ -1,0 +1,92 @@
+#!/usr/bin/env ruby
+
+$BASE_DIR = File.absolute_path(File.join(File.dirname(__FILE__), "../"))
+require "#{File.join($BASE_DIR, "featuregen/tfidf.rb")}"
+require "#{File.join($BASE_DIR, "featuregen/common.rb")}"
+
+def help
+    puts "vwgen_text_multiclass_test test_input_dir test_output_file training_output_dir [nb_feature_limit]"
+    exit
+end
+
+def get_input_paths(input_dir)
+    txt_files = File.join("**", "*.txt")
+    recursive_pattern = File.join(input_dir, txt_files)
+    input_paths = [] 
+    Dir.glob(recursive_pattern).each {|path| input_paths << File.absolute_path(path) }
+
+    puts "[vwgen_text_multiclass_test] totally #{input_paths.length} test files"
+    0.upto(2).each do |i|
+        puts "\t [#{i}] #{input_paths[i]}"
+    end
+    puts "\t (#{input_paths.length - 3} more)" if input_paths.length > 3
+
+    return input_paths
+end
+
+def gen_vw_data(input_paths, output_file, training_output_dir, limit)
+    output = open(output_file, "w")
+    puts "[vwgen_text_multiclass_test] starting to generate vw format data"
+    final_tfidf = {}
+    puts "[vwgen_text_multiclass_test] processing tfidf of input corpus"
+    tfidf(input_paths).each_pair do |input_path, doc_tfidf|
+        top_tfidf = {}
+        next if doc_tfidf.length < 10
+        if limit > 0
+            doc_tfidf = doc_tfidf.sort {|e1, e2| e2[1] <=> e1[1]} # sort by value in descending order
+            0.upto(limit-1).each do |i|
+                break if i >= doc_tfidf.length # in case limit is bigger than the # of features for current doc
+                term = doc_tfidf[i][0]
+                weight = doc_tfidf[i][1]
+                top_tfidf[term] = weight
+            end
+        else
+            top_tfidf = doc_tfidf
+        end
+        final_tfidf[input_path] = top_tfidf
+    end
+
+    puts "[vwgen_text_multiclass_test] tfidf generated, processing category and features metadata" 
+    categories_file = File.join(training_output_dir, "categories.tsv")
+    features_file = File.join(training_output_dir, "features.tsv")
+    categories = load_map(categories_file)
+    features = load_map(features_file)
+    puts "[vwgen_text_multiclass_test] loaded #{categories.length} categories from #{categories_file}"
+    puts "[vwgen_text_multiclass_test] loaded #{features.length} features from #{features_file}"
+    final_tfidf.each_pair do |input_path, top_tfidf|
+        category = input_path.split("/")[-2]
+
+        # the category index of current doc is known
+        # the index of current doc's features must be already known
+        # ready to genenerate to vw format data for current file
+        vw_line = "#{categories[category]} | "
+        top_tfidf.each_pair do |feature, weight|
+            vw_line += "#{features[feature]} "
+        end
+        output.puts vw_line.strip
+    end
+    output.close
+
+    puts "[vwgen_text_multiclass_test] vm format data generated to #{File.absolute_path(output_file)}"
+end
+
+if __FILE__ == $0
+    help if ARGV.length < 3
+
+    input_dir = ARGV[0]         
+    output_file = ARGV[1]
+    training_output_dir = ARGV[2]
+    limit = -1
+    limit = ARGV[3].to_i if ARGV.length == 4
+    if limit > 0 and limit < 10 
+        puts "limit must be bigger than 10"
+        exit
+    end
+    
+    input_paths = get_input_paths(input_dir)
+    output_dir = File.dirname(output_file)
+    `mkdir -p #{output_dir}`
+    `rm -rf #{output_dir}/*`
+
+    gen_vw_data(input_paths, output_file, training_output_dir, limit)
+end
