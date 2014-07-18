@@ -2,15 +2,12 @@ Vowpal Wabbit Learning
 ==
 
 VW Repo and Installation
-===
     https://github.com/JohnLangford/vowpal_wabbit
 
 VW Introduction
-===
     https://github.com/JohnLangford/vowpal_wabbit/wiki/Tutorial 
 
 Multi-Class Text Classification
-===
  - input data: dataset/texts.tgz
  - create a folder "input", and extract texts.tgz to input/
  - bin/vwgen_text_multiclass input/texts/training output/texts/training 30
