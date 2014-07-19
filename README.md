@@ -1,8 +1,6 @@
 Vowpal Wabbit Learning
 ==
 
-## Learning Tasks
-
 ### Multi-Class Text Classification
  - input data: dataset/texts.tgz
  - create a folder "input", and extract texts.tgz to input/
