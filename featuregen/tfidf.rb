@@ -44,7 +44,8 @@ def tfidf(input_paths)
     tf.each_pair do |doc_path, doc_tf|
         doc_tfidf = {}
         doc_tf.each_pair do |term, term_tf|
-            term_idf = Math.log(total_docs * 1.0 / term_docs[term])
+            next unless term_docs[term] > 0
+            term_idf = Math.log(total_docs * 1.0 / term_docs[term]) 
             doc_tfidf[term] = term_tf * term_idf
         end
         tfidf[doc_path] = doc_tfidf

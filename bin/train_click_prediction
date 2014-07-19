@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+# Change VW location to your local vw repo
+VW=/Users/zouzhile/repos/vowpal_wabbit 
+
+# start spanning tree 
+$VW/cluster/spanning_tree
+if [ $? -eq 0 ] ; then
+    echo "[train_click_prediction] spanning_tree started"
+else
+    echo "[train_click_prediction] failed to start spanning_tree, exit status: $?"
+    exit $?
+fi
+
+HADOOP_HOME=/opt/hadoop-0.20.2
+INPUT=/Users/zouzhile/repos/vw/input/clicks/train
+OUTPUT=/Users/zouzhile/repos/vw/output/clicks/train/
+mkdir -p $OUTPUT
+rm -rf $OUTPUT
+
+uniqId=`expr $RANDOM \* $RANDOM`
+onlinepasses=1
+batchpasses=40
+regularization=0.1
+nbits=22
+train_mapper="train_click_prediction_mapper $onlinepasses $batchpasses $regularization $nbits 0.00000001  $uniqId"
+
+hadoop jar $HADOOP_HOME/contrib/streaming/hadoop-0.20.2-streaming.jar -Dmapred.job.map.memory.mb=2500 -input $INPUT -output $OUTPUT -file $VW/vw -file bin/train_click_prediction_mapper -mapper "$train_mapper" -reducer NONE
+
+killall spanning_tree
+echo "[train_click_prediction] spanning_tree stopped"
+
+# clear distributed cache file
+rm vw train_click_prediction_mapper 
+echo "[train_click_prediction] finished training"

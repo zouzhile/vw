@@ -6,6 +6,8 @@ VW Repo and Installation
 
 VW Introduction
     https://github.com/JohnLangford/vowpal_wabbit/wiki/Tutorial 
+A comprehensive Tutorial
+    http://zinkov.com/posts/2013-08-13-vowpal-tutorial/ 
 
 Multi-Class Text Classification
  - input data: dataset/texts.tgz

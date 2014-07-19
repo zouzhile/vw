@@ -61,7 +61,7 @@ def gen_vw_data(input_paths, output_file, training_output_dir, limit)
         # ready to genenerate to vw format data for current file
         vw_line = "#{categories[category]} | "
         top_tfidf.each_pair do |feature, weight|
-            vw_line += "#{features[feature]} "
+            vw_line += "#{features[feature]}:weight "
         end
         output.puts vw_line.strip
     end

@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+exec 1>&2
+onlinepasses=$1
+batchpasses=$2
+regularization=$3
+nbits=$4
+termination=$5
+uniqId=$6
+
+export 1>&2
+
+uniqId=`expr $uniqId \* 2`;
+
+echo "[train_click_prediction_mapper] ./vw -b $nbits --initial_weight 0.000000000000001 --total 1 --node $mapred_task_partition --unique_id $uniqId --cache_file temp.cache --passes $batchpasses --l2 $regularization -d /dev/stdin -f model  --span_server localhost --bfgs --mem 10 --loss_function logistic --readable_model model.readable  --termination $termination 2>&1 | tee output_bfgs >/dev/stderr"
+
+chmod +x ./vw
+
+# ****** Change to the following on a real hadoop cluster **********
+#./vw -b $nbits --initial_weight 0.000000000000001 --total $mapreduce_job_maps --node $mapred_task_partition --unique_id $uniqId --cache_file temp.cache --passes $batchpasses --l2 $regularization -d /dev/stdin -f model  --span_server localhost --bfgs --mem 10 --loss_function logistic --readable_model model.readable  --termination $termination 2>&1 | tee output_bfgs >/dev/stderr
+
+./vw -b $nbits --initial_weight 0.000000000000001 --total 1 --node $mapred_task_partition --unique_id $uniqId --cache_file temp.cache --passes $batchpasses --l2 $regularization -d /dev/stdin -f model  --span_server localhost --bfgs --mem 10 --loss_function logistic --readable_model model.readable  --termination $termination 2>&1 | tee output_bfgs >/dev/stderr
+
+# ****** Change to the following on a real hadoop cluster **********
+# mapred_output_dir=$mapreduce_output_fileoutputformat_outputdir 
+
+mapred_output_dir=output/clicks/train/
+
+ls -l $mapred_output_dir
+
+if [ "$mapred_task_partition" == '0' ]
+then
+    # the model files are generated at current folder on the worker node
+    tar -cvf model.tar model* >/dev/stderr
+    # change the commands to "hadoop fs * " commands on a real hadoop cluster
+    rm -rf $mapred_output_dir/model*
+    rm -rf $mapred_output_dir/output*
+    cp model.tar output_* $mapred_output_dir
+fi
