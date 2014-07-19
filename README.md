@@ -6,6 +6,10 @@ VW Repo and Installation
 
 VW Introduction
     https://github.com/JohnLangford/vowpal_wabbit/wiki/Tutorial 
+
+VW Clustering 
+    https://raw.github.com/wiki/JohnLangford/vowpal_wabbit/Cluster_parallel.pdf 
+
 A comprehensive Tutorial
     http://zinkov.com/posts/2013-08-13-vowpal-tutorial/ 
 
