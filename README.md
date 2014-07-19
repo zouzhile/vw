@@ -2,16 +2,17 @@ Vowpal Wabbit Learning
 ==
 
 VW Repo and Installation
-    https://github.com/JohnLangford/vowpal_wabbit
+ - https://github.com/JohnLangford/vowpal_wabbit
 
 VW Introduction
-    https://github.com/JohnLangford/vowpal_wabbit/wiki/Tutorial 
+ - https://github.com/JohnLangford/vowpal_wabbit/wiki/Tutorial 
 
 VW Clustering 
-    https://raw.github.com/wiki/JohnLangford/vowpal_wabbit/Cluster_parallel.pdf 
+ - John's slide: https://raw.github.com/wiki/JohnLangford/vowpal_wabbit/Cluster_parallel.pdf 
+ - A Reliable Effective Terascale Linear Learning System: http://arxiv.org/pdf/1110.4198v3.pdf 
 
 A comprehensive Tutorial
-    http://zinkov.com/posts/2013-08-13-vowpal-tutorial/ 
+ - http://zinkov.com/posts/2013-08-13-vowpal-tutorial/ 
 
 Multi-Class Text Classification
  - input data: dataset/texts.tgz
