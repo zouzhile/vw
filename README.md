@@ -17,3 +17,8 @@ Multi-Class Text Classification
  - mkdir -p output/model/texts/
  - vw -d output/texts/training/vw_training_data --passes 100 --cache_file training.cache --loss_function logistic -f output/model/texts/predictor.vw --oaa 20 
  - vw -d output/texts/test/vw_test_data -t -i output/model/texts/predictor.vw -p test_predictions
+
+Click Prediction
+ - input data: dataset/clicks.tgz
+ - create a folder "input", and extract clicks.tgz to input/
+ - bin/train_click_prediction
