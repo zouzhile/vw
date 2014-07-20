@@ -20,7 +20,7 @@ def tfidf(input_paths)
                     next if is_stopword(term)
 
                     term_docs[term] ||= 0 # for idf
-                    if term_flag[term]  
+                    if not term_flag[term]  
                         term_flag[term] = true
                         term_docs[term] += 1 
                     end

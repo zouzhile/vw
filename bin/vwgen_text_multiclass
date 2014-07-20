@@ -5,7 +5,7 @@ require "#{File.join($BASE_DIR, "featuregen/tfidf.rb")}"
 require "#{File.join($BASE_DIR, "featuregen/common.rb")}"
 
 def help
-    puts "vwgen_text_multiclass input_dir output_file [nb_feature_limit]"
+    puts "vwgen_text_multiclass input_dir output_dir [nb_feature_limit]"
     exit
 end
 
@@ -24,8 +24,8 @@ def get_input_paths(input_dir)
     return input_paths
 end
 
-def gen_vw_data(input_paths, output_file, limit)
-    output = open(output_file, "w")
+def gen_vw_data(input_paths, output_dir, limit)
+    output = open(File.join(output_dir, "vw_training_data"), "w")
     puts "[vwgen_text_multiclass] starting to generate vw format data"
     final_tfidf = {}
     puts "[vwgen_text_multiclass] processing tfidf of input corpus"
@@ -68,7 +68,6 @@ def gen_vw_data(input_paths, output_file, limit)
     end
     output.close
 
-    output_dir = File.dirname(output_file)
     categories_file = File.join(output_dir, "categories.tsv")
     dump_map(categories, categories_file)
     features_file = File.join(output_dir, "features.tsv")
@@ -76,25 +75,25 @@ def gen_vw_data(input_paths, output_file, limit)
 
     puts "[vwgen_text_multiclass] dumped #{categories.length} categories to #{categories_file}"
     puts "[vwgen_text_multiclass] dumped #{features.length} features to #{features_file}"
-    puts "[vwgen_text_multiclass] vm format data generated to #{File.absolute_path(output_file)}"
+    puts "[vwgen_text_multiclass] vm format data generated to #{File.absolute_path(output_dir)}"
 end
 
 if __FILE__ == $0
     help if ARGV.length < 2
 
     input_dir = ARGV[0]         
-    output_file = ARGV[1]
+    input_paths = get_input_paths(input_dir)
+
+    output_dir = ARGV[1]
+    `mkdir -p #{output_dir}`
+    `rm -rf #{output_dir}/*`
+
     limit = -1
     limit = ARGV[2].to_i if ARGV.length == 3
     if limit > 0 and limit < 10 
         puts "limit must be bigger than 10"
         exit
     end
-    
-    input_paths = get_input_paths(input_dir)
-    output_dir = File.dirname(output_file)
-    `mkdir -p #{output_dir}`
-    `rm -rf #{output_dir}/*`
 
-    gen_vw_data(input_paths, output_file, limit)
+    gen_vw_data(input_paths, output_dir, limit)
 end

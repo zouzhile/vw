@@ -5,9 +5,9 @@ Vowpal Wabbit Learning
  - input data: dataset/texts.tgz
  - create a folder "input", and extract texts.tgz to input/
  - bin/vwgen_text_multiclass input/texts/training output/texts/training 30
- - bin/vwgen_text_multiclass_test input/texts/test/ output/texts/test/vw_test_data output/texts/training 50
+ - bin/vwgen_text_multiclass_test input/texts/test/ output/texts/test/vw_test_data output/texts/training 30
  - mkdir -p output/model/texts/
- - vw -d output/texts/training/vw_training_data --passes 100 --cache_file training.cache --loss_function logistic -f output/model/texts/predictor.vw --oaa 20 
+ - vw -d output/texts/training/vw_training_data --passes 100 --cache_file training.cache --loss_function logistic -f output/model/texts/predictor.vw --readable_model output/model/texts/predictor.readable --oaa 20 
  - vw -d output/texts/test/vw_test_data -t -i output/model/texts/predictor.vw -p test_predictions
 
 ### Click Prediction
