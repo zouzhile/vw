@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+# Change VW location to your local vw repo
+VW=/homes/zouzhile/training/vowpal_wabbit
+
+echo "[train_click_prediction] checking existing spanning_tree process ..."
+start_spanning_tree=false
+count=`ps aux | grep spanning_tree | wc -l` ;
+if [ $count -ge 2 ] ; then
+    ps aux | grep spanning_tree
+    echo "[train_click_prediction] spanning_tree process is already running ..."
+else
+    # start spanning tree
+    $VW/cluster/spanning_tree
+    if [ $? -eq 0 ] ; then
+        echo "[train_click_prediction] spanning_tree started"
+        start_spanning_tree=true
+    else
+        echo "[train_click_prediction] failed to start spanning_tree, exit status: $?"
+        exit $?
+    fi
+fi
+
+
+HADOOP_HOME=/home/gs/hadoop/current/share/hadoop/tools/lib/
+queue=apg_devlarge_p4
+INPUT=/user/zouzhile/vw_train/clicks/train
+OUTPUT=/user/zouzhile/vw_train/model/clicks
+
+hadoop fs -rm -r -f -skipTrash $OUTPUT
+
+uniqId=`expr $RANDOM \* $RANDOM`
+onlinepasses=1
+batchpasses=40
+regularization=0.1
+nbits=22
+train_mapper="dist_train_click_prediction_mapper $onlinepasses $batchpasses $regularization $nbits 0.00000001  $uniqId"
+
+hadoop jar $HADOOP_HOME/hadoop-streaming.jar -Dmapreduce.job.acl-view-job=* -Dmapred.map.tasks.speculative.execution=true -Dmapred.job.queue.name=$queue -Dmapred.reduce.tasks=0 -Dmapred.job.map.memory.mb=2500 -Dmapred.child.java.opts="-Xmx3000m" -Dmapred.task.timeout=600000000 -input $INPUT -output $OUTPUT -file $VW/vw -file bin/dist_train_click_prediction_mapper -mapper "$train_mapper" -reducer NONE
+
+# stop spanning tree process
+if [ $start_spanning_tree = true ] ; then
+    killall spanning_tree
+    if [ $? -eq 0 ] ; then
+        echo "[train_click_prediction] spanning_tree stop"
+    else
+        echo "[train_click_prediction] failed to stop spanning_tree, exit status: $?"
+        exit $?
+    fi
+fi
+
+# clean up
+hadoop fs -rm -r -f -skipTrash $OUTPUT/part-*
+echo "[train_click_prediction] finished training"
