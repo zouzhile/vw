@@ -15,6 +15,12 @@ Vowpal Wabbit Learning
  - create a folder "input", and extract clicks.tgz to input/
  - bin/train_click_prediction
 
+### Classifier Performance Measurement with aucROC
+ - git clone git@github.com:zouzhile/PyROC.git 
+ - python pyroc.py -f roc_input.tsv -p -t "test roc" 
+
+The roc_input.tsv is the classifier's prediction result on the test set. The first column is the the actual class ( 0 or 1) of the test instance and second column is the prediction score 
+
 ## Useful Readings
  - [VW Repo and Installation Instruction](https://github.com/JohnLangford/vowpal_wabbit)
  - [VW Introduction Tutorials](https://github.com/JohnLangford/vowpal_wabbit/wiki/Tutorial) 
